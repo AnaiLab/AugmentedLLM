@@ -1,15 +1,19 @@
 import os
 
-# Replace with path to your RTF documents and desired output location
+# Replace with path to your RTF documents and desired output location (Step 1.1.1)
 rtf_file_dir = './articles_rtf/'
-converted_file_dir = './articles_converted/'
+converted_file_dir = './articles/'
 
-# Replace with the path to the folder containing your documents
+# Replace with the path to the folder containing your documents (Step 1.2.1)
 article_dir = './articles/'
+
 embedding_model = 'local'
 
-# Replace with the API keys you would like to use
-huggingface_key = ''
+# Replace with hf API key you would like to use
+huggingface_key = 'your-key-here'
+
+
+# Replace with openAI key if you would like to test against OpenAI models
 openai_key = ''
 
 # Model output location

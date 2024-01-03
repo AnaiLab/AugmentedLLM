@@ -23,5 +23,5 @@ chroma_collection = db.get_or_create_collection(collection_name)
 # assign chroma as the vector_store to the context
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 storage_context = StorageContext.from_defaults(vector_store=vector_store)
-service_context = ServiceContext.from_defaults(embed_model=getEmbedModel(embedding_model))
+service_context = ServiceContext.from_defaults(llm=None, embed_model=getEmbedModel(embedding_model))
 index = VectorStoreIndex.from_documents(documents, service_context=service_context, storage_context=storage_context)

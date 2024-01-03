@@ -1,4 +1,4 @@
-from ..utils.embeddings import getEmbedModel
+from .embeddings import getEmbedModel
 from llama_index.vector_stores import ChromaVectorStore # TODO: Replace with the abstract type
 from llama_index import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.prompts import PromptTemplate
@@ -16,9 +16,9 @@ from llama_index.prompts import PromptTemplate
 
 """LLM Augmented with additional documents. Defaults to using Llama-2-7b-chat but can be extended to alternative LLMs"""
 class AugmentedLLM:
-    def __init__(self, vector_store: ChromaVectorStore, hf_embedding_model: str=None, llm: LLMType = None):
-        self.documents_dir = documents_dir
+    def __init__(self, vector_store: ChromaVectorStore, hf_token: str=None, hf_embedding_model: str=None, llm: LLMType = None):
         self.embedding_model = getEmbedModel(hf_embedding_model)
+        self.hf_token = hf_token
         self.llm = self.__getLLM(llm)
         self.index = self.__createVectorDatabase()
         self.query_engine = self.index.as_query_engine()
@@ -39,9 +39,14 @@ class AugmentedLLM:
         else:
             return llm
         
-    def __getDefaultLLM(self):
+    def __getDefaultLLM(self):        
         # Default to llama-2 7B. Swap this out for your preferred model.
         self.model = "meta-llama/Llama-2-7b-chat-hf"
+
+        # Must have hf token specified as this model requires access 
+        if self.hf_token is None:
+            print('Please specify huggingface token in order to use default model')
+            exit()
 
         SYSTEM_PROMPT = """You are an AI assistant that answers questions. Use the provided context to answer if possible, otherwise defer to other knowledge if the provided context is not helpful
         """
@@ -52,15 +57,17 @@ class AugmentedLLM:
 
         llm = HuggingFaceLLM(
             context_window=4096,
-            max_new_tokens=2048,
+            
             generate_kwargs={"temperature": 0.3},
             query_wrapper_prompt=query_wrapper_prompt,
             tokenizer_name=self.model,
             model_name=self.model,
+            model_kwargs={"token": self.hf_token},
+            tokenizer_kwargs={"token": self.hf_token},
             # device_map="auto",
             # change these settings below depending on your GPU
             # model_kwargs={"torch_dtype": torch.float16, "load_in_8bit": True},
-            model_kwargs={},
+            # model_kwargs={},
         )
 
         return llm
