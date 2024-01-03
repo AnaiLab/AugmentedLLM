@@ -3,7 +3,7 @@ from llama_index import SimpleDirectoryReader, VectorStoreIndex, ServiceContext
 from llama_index.storage.storage_context import StorageContext
 from llama_index.vector_stores import ChromaVectorStore
 from config import Config
-from utils.embeddings import getEmbedModel
+from modules.embeddings import getEmbedModel
 
 # Edit these if you don't want to use the config file
 documents_dir = Config.DOCUMENTS_DIR
