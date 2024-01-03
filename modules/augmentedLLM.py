@@ -7,6 +7,7 @@ from llama_index import (
     SimpleDirectoryReader,
     VectorStoreIndex,
     ServiceContext,
+    StorageContext
 )
 from llama_index.llms import LlamaCPP
 from llama_index.llms.llama_utils import messages_to_prompt, completion_to_prompt
@@ -20,7 +21,7 @@ class AugmentedLLM:
         self.embedding_model = getEmbedModel(hf_embedding_model)
         self.hf_token = hf_token
         self.llm = self.__getLLM(llm)
-        self.index = self.__createVectorDatabase()
+        self.index = self.__createVectorDatabase(vector_store)
         self.query_engine = self.index.as_query_engine()
 
     def __getEmbedModel(self, hf_embedding_model: str):
@@ -34,47 +35,72 @@ class AugmentedLLM:
     def __getLLM(self, llm: LLMType):
         # If model is unspecified, use default model
         if llm is None:
-            return self.__getDefaultLLM()
+            return self.__getDefaultLLM2()
 
         else:
             return llm
         
-    def __getDefaultLLM(self):        
-        # Default to llama-2 7B. Swap this out for your preferred model.
-        self.model = "meta-llama/Llama-2-7b-chat-hf"
+    # def __getDefaultLLM(self):        
+    #     # Default to llama-2 7B. Swap this out for your preferred model.
+    #     self.model = "meta-llama/Llama-2-7b-chat-hf"
 
-        # Must have hf token specified as this model requires access 
-        if self.hf_token is None:
-            print('Please specify huggingface token in order to use default model')
-            exit()
+    #     # Must have hf token specified as this model requires access 
+    #     if self.hf_token is None:
+    #         print('Please specify huggingface token in order to use default model')
+    #         exit()
 
-        SYSTEM_PROMPT = """You are an AI assistant that answers questions. Use the provided context to answer if possible, otherwise defer to other knowledge if the provided context is not helpful
-        """
+    #     SYSTEM_PROMPT = """You are an AI assistant that answers questions. Use the provided context to answer if possible, otherwise defer to other knowledge if the provided context is not helpful
+    #     """
 
-        query_wrapper_prompt = PromptTemplate(
-            "[INST]<<SYS>>\n" + SYSTEM_PROMPT + "<</SYS>>\n\n{query_str}[/INST] "
-        )
+    #     query_wrapper_prompt = PromptTemplate(
+    #         "[INST]<<SYS>>\n" + SYSTEM_PROMPT + "<</SYS>>\n\n{query_str}[/INST] "
+    #     )
 
-        llm = HuggingFaceLLM(
-            context_window=4096,
+    #     llm = HuggingFaceLLM(
+    #         context_window=4096,
             
-            generate_kwargs={"temperature": 0.3},
-            query_wrapper_prompt=query_wrapper_prompt,
-            tokenizer_name=self.model,
-            model_name=self.model,
-            model_kwargs={"token": self.hf_token},
-            tokenizer_kwargs={"token": self.hf_token},
-            # device_map="auto",
-            # change these settings below depending on your GPU
-            # model_kwargs={"torch_dtype": torch.float16, "load_in_8bit": True},
-            # model_kwargs={},
+    #         generate_kwargs={"temperature": 0.3},
+    #         query_wrapper_prompt=query_wrapper_prompt,
+    #         tokenizer_name=self.model,
+    #         model_name=self.model,
+    #         model_kwargs={"token": self.hf_token},
+    #         tokenizer_kwargs={"token": self.hf_token},
+    #         # device_map="auto",
+    #         # change these settings below depending on your GPU
+    #         # model_kwargs={"torch_dtype": torch.float16, "load_in_8bit": True},
+    #         # model_kwargs={},
+    #     )
+
+    #     return llm
+
+    def __getDefaultLLM2(self):
+        model_url = "https://huggingface.co/TheBloke/Llama-2-7B-chat-GGML/resolve/main/llama-2-7b-chat.ggmlv3.q4_0.bin"
+
+        llm = LlamaCPP(
+            # You can pass in the URL to a GGML model to download it automatically
+            model_url=model_url,
+            # optionally, you can set the path to a pre-downloaded model instead of model_url
+            model_path=None,
+            temperature=0.1,
+            max_new_tokens=256,
+            # llama2 has a context window of 4096 tokens, but we set it lower to allow for some wiggle room
+            context_window=3900,
+            # kwargs to pass to __call__()
+            generate_kwargs={},
+            # kwargs to pass to __init__()
+            # set to at least 1 to use GPU
+            model_kwargs={"n_gpu_layers": 4}, # I need to play with this and see if it actually helps
+            # transform inputs into Llama2 format
+            messages_to_prompt=messages_to_prompt,
+            completion_to_prompt=completion_to_prompt,
+            verbose=True,
         )
 
         return llm
 
     # TODO: change vector store type
     def __createVectorDatabase(self, vectorStore: ChromaVectorStore):        
-        storage_context = StorageContext.from_defaults(vector_store=vector_store)
+        storage_context = StorageContext.from_defaults(vector_store=vectorStore)
 
         # Create service context
         service_context = ServiceContext.from_defaults(
@@ -84,7 +110,7 @@ class AugmentedLLM:
             
         # load your index from stored vectors
         index = VectorStoreIndex.from_vector_store(
-            vector_store, storage_context=storage_context, service_context=service_context
+            vectorStore, storage_context=storage_context, service_context=service_context
         )
 
         return index
