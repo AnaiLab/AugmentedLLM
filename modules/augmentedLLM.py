@@ -14,6 +14,7 @@ from llama_index.llms.llama_utils import messages_to_prompt, completion_to_promp
 from llama_index.llms.utils import LLMType, resolve_llm
 from llama_index.llms import HuggingFaceLLM
 from llama_index.prompts import PromptTemplate
+import torch
 
 """LLM Augmented with additional documents. Defaults to using Llama-2-7b-chat but can be extended to alternative LLMs"""
 class AugmentedLLM:
@@ -35,19 +36,20 @@ class AugmentedLLM:
     def __getLLM(self, llm: LLMType):
         # If model is unspecified, use default model
         if llm is None:
-            return self.__getDefaultLLM2()
+            return self.__getDefaultLLM()
 
         else:
             return llm
         
     # def __getDefaultLLM(self):        
     #     # Default to llama-2 7B. Swap this out for your preferred model.
-    #     self.model = "meta-llama/Llama-2-7b-chat-hf"
+    #     # self.model = "meta-llama/Llama-2-7b-chat-hf"
+    #     self.model = 'TheBloke/Llama-2-7B-Chat-GGUF'
 
-    #     # Must have hf token specified as this model requires access 
-    #     if self.hf_token is None:
-    #         print('Please specify huggingface token in order to use default model')
-    #         exit()
+    #     # # Must have hf token specified as this model requires access 
+    #     # if self.hf_token is None:
+    #     #     print('Please specify huggingface token in order to use default model')
+    #     #     exit()
 
     #     SYSTEM_PROMPT = """You are an AI assistant that answers questions. Use the provided context to answer if possible, otherwise defer to other knowledge if the provided context is not helpful
     #     """
@@ -63,18 +65,18 @@ class AugmentedLLM:
     #         query_wrapper_prompt=query_wrapper_prompt,
     #         tokenizer_name=self.model,
     #         model_name=self.model,
-    #         model_kwargs={"token": self.hf_token},
-    #         tokenizer_kwargs={"token": self.hf_token},
-    #         # device_map="auto",
+    #         # model_kwargs={"token": self.hf_token},
+    #         # tokenizer_kwargs={"token": self.hf_token},
+    #         device_map="auto",
     #         # change these settings below depending on your GPU
-    #         # model_kwargs={"torch_dtype": torch.float16, "load_in_8bit": True},
-    #         # model_kwargs={},
+    #         model_kwargs={"torch_dtype": torch.float16, "load_in_8bit": True},
+            
     #     )
 
     #     return llm
 
-    def __getDefaultLLM2(self):
-        model_url = "https://huggingface.co/TheBloke/Llama-2-7B-chat-GGML/resolve/main/llama-2-7b-chat.ggmlv3.q4_0.bin"
+    def __getDefaultLLM(self):
+        model_url = "https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q5_K_M.gguf?download=true"
 
         llm = LlamaCPP(
             # You can pass in the URL to a GGML model to download it automatically
