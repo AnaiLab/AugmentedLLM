@@ -30,8 +30,6 @@ class Model(object):
     
 
 
-
-
 """Client for interacting with HuggingFace Models via inference API"""
 class HuggingfaceRemoteModel(Model):
     def __init__(self, apiKey: str, model: str):
@@ -42,7 +40,6 @@ class HuggingfaceRemoteModel(Model):
 
     def query(self, payload) -> str:
         response = requests.post(self.url, headers=self.headers, json=payload)
-        print(response)
         return response.json()[0]['generated_text']
     
 
