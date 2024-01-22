@@ -13,13 +13,16 @@ output_dir = './llm_responses/'
 
 models = []
 
-# Comment out whichever models you would not like to include, or specify your own
-gpt35 = lmql.model("openai/gpt-3.5-turbo")
-models.append(gpt35)
+# uncomment out whichever models you would not like to include, or specify your own
+# GPT 3.5
+# models.append(lmql.model("openai/gpt-3.5-turbo"))
 
-gpt4 = lmql.model("openai/gpt-4")
-models.append(gpt4)
+# GPT-4
+# models.append(lmql.model("openai/gpt-4"))
 
+if(len(models) == 0):
+    print("Please uncomment at least one model for testing!")
+    exit(1)
 
 for model in models:
     timestamp = datetime.now().strftime('%d-%m-%y-%H:%M')

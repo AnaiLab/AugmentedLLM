@@ -19,7 +19,7 @@ chroma_collection = db.get_or_create_collection(collection_name)
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 
 # Note, alternatively you can define an LLM object and pass in to use instead of the default
-augmentedLLM = AugmentedLLM(vector_store, llm=None, hf_token=Config.HUGGINGFACE_KEY)
+augmentedLLM = AugmentedLLM(vector_store, llm=None)
 
 while True:
     query = input('\n Query: \n')
