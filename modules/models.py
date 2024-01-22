@@ -38,7 +38,8 @@ class HuggingfaceRemoteModel(Model):
         self.key = apiKey
         super().__init__(model)
 
-    def query(self, payload) -> str:
+    def query(self, query) -> str:
+        payload = {'inputs': query + '\nCorrect answer is:'}
         response = requests.post(self.url, headers=self.headers, json=payload)
         return response.json()[0]['generated_text']
     
@@ -52,7 +53,7 @@ class OpenAIChatModel(Model):
         # If the user does not set a custom set of messages, use a default
         if(systemPrompt is None):
             self.systemPrompt ="""
-            You are a helpful AI assistant. Answer the inputted question with only the letter of the correct response without further explanation. Your response should be one character.
+            You are a helpful AI assistant. Answer the inputted question with only the letter of the correct response without further explanation.
             """
         else:
             self.systemPrompt = systemPrompt

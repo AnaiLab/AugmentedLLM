@@ -47,5 +47,5 @@ for model in models:
 
         
     # Write output to file
-    with open("test.txt", "w") as f:
+    with open(filename, "w") as f:
         f.write(responses)
