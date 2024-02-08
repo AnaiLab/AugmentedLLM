@@ -21,7 +21,7 @@ openaiSystemPrompt = 'You are a helpful assistant. Answer each multiple choice q
 # models.append(OpenAIChatModel(Config.OPENAI_KEY, 'gpt-4', openaiSystemPrompt))
 
 # HF Models
-# TODO: make these specific huggingfaceremote models
+# # TODO: make these specific huggingfaceremote models
 
 # Mistral 7b
 # models.append(HuggingfaceRemoteModel(Config.HUGGINGFACE_KEY, 'mistralai/Mistral-7B-v0.1'))
@@ -35,13 +35,13 @@ if(len(models) == 0):
 
 for model in models:
     timestamp = datetime.now().strftime('%d-%m-%y-%H:%M')
-    filename = output_dir + model.model + '-' + timestamp
+    filename = output_dir + (model.model).replace('/', '-') + '-' + timestamp
     responses = ''
 
     # Loop over the questions and generate a response for each
     for question in Questions:
         
-        response = model.query({'inputs': question.question + '\nCorrect answer is:'})
+        response = model.query(question.question)
         responses += 'Question: ' + question.question + '\nResponse: ' + response + '\nCorrect answer: ' + question.answer + '\n-----------------------------------\n\n\n' 
 
         
