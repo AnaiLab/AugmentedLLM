@@ -9,7 +9,7 @@ output_dir = './llm_responses/'
 
 models = []
 
-# TODO: add augmented model
+# If desired, the AugmentedLLM class can be imported here as well
 
 # Open AI models
 openaiSystemPrompt = 'You are a helpful assistant. Answer each multiple choice question to the best of your knowledge. Only reply with the letter for the correct answer. Your answer should be 1 character.'
