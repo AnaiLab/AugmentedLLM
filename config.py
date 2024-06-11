@@ -1,10 +1,10 @@
 import os
 
-# Replace with path to your RTF documents and desired output location (Step 1.1.1)
+# Replace with path to your RTF documents and desired output location (Step 2.1.1)
 rtf_file_dir = './articles_rtf/'
 converted_file_dir = './articles/'
 
-# Replace with the path to the folder containing your documents (Step 1.2.1)
+# Replace with the path to the folder containing your documents (Step 2.2.1)
 article_dir = './articles/'
 
 embedding_model = 'local'
